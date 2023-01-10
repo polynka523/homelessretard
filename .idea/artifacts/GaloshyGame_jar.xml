@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GaloshyGame:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GaloshyGame_jar</output-path>
+    <root id="archive" name="GaloshyGame_jar.jar">
+      <element id="archive" name="GaloshyGame.jar">
+        <element id="module-output" name="GaloshyGame" />
+      </element>
+    </root>
+  </artifact>
+</component>

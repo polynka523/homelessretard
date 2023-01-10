@@ -1,15 +1,10 @@
 package ui;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.io.File;
 import java.util.Random;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.File;
 public class GameMap extends JPanel {
     Random RANDOM = new Random();
     public static final int modeVsAi = 0;
@@ -19,6 +14,8 @@ public class GameMap extends JPanel {
     private static final int DOT_EMPTY = 0;
     private static final int DOT_PADDING = 8;
     private static final int STATE_WIN_HUMAN = 1;
+    private static final int STATE_WIN_HUMAN1 = 3;
+    private static final int STATE_WIN_HUMAN2 = 4;
     private static final int STATE_WIN_AI = 2;
     private static final int STATE_DRAW = 0;
 
@@ -35,21 +32,42 @@ public class GameMap extends JPanel {
     private boolean isGameOver;
     private boolean isInitialized;
     private int gameMode;
-    private int playerNumTurn;
-
-    public GameMap() throws IOException {
+    private int numTurn = 1;
+    public GameMap(int gameMode)  {
         isInitialized = false;
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                update(e);
-            }
-        });
+        this.gameMode = gameMode;
+        if (gameMode == 0) {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    super.mouseReleased(e);
+                    System.out.println("da");
+                    update(e);
+                }
+            });
+        }
+        else {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+//                    super.mouseReleased(e);
+                    System.out.println("da");
+                    if (numTurn == 1) {
+                        update1(e);
+                        numTurn = 2;
+                    }
+                    else {
+                        update2(e);
+                        numTurn = 1;
+                    }
+                }
+            });
+
+        }
+
     }
 
     private void update(MouseEvent e) {
-        if (gameMode == 0) {
             if (isGameOver || !isInitialized) {
                 return;
             }
@@ -64,26 +82,30 @@ public class GameMap extends JPanel {
             if (gameCheck(DOT_AI, STATE_WIN_AI)) {
                 return;
             }
+    }
+    public void update1(MouseEvent e) {
+        if (isGameOver || !isInitialized) {
+            return;
         }
-        if (gameMode == 1) {
-            if (isGameOver || !isInitialized) {
-                return;
-            }
-            playerFirstTurn(e);
-            if (gameCheck(DOT_HUMAN, STATE_WIN_HUMAN)) {
-                return;
-            }
-            repaint();
-            if (isGameOver || !isInitialized) {
-                return;
-            }
-
-            playerSecondTurn(e);
-            if (gameCheck(DOT_AI, STATE_WIN_AI)) {
-                return;
-            }
-            repaint();
+        if (!playerFirstTurn(e)) {
+            return;
         }
+        if (gameCheck(DOT_HUMAN, STATE_WIN_HUMAN1)) {
+            return;
+        }
+        repaint();
+    }
+    public void update2(MouseEvent e1) {
+        if (isGameOver || !isInitialized) {
+            return;
+        }
+        if (!playerSecondTurn(e1)) {
+            return;
+        }
+        if (gameCheck(DOT_AI, STATE_WIN_HUMAN2)) {
+            return;
+        }
+        repaint();
     }
 
     private boolean playerFirstTurn(MouseEvent event) {
@@ -92,16 +114,18 @@ public class GameMap extends JPanel {
         if (!isCellValid(cellY, cellX) || !isCellEmpty(cellY, cellX)) {
             return false;
         }
-        field[cellY][cellX] = DOT_HUMAN;
-        repaint();
-        return true;
+
+            field[cellY][cellX] = DOT_HUMAN;
+            repaint();
+            return true;
     }
-    private boolean playerSecondTurn(MouseEvent event) {
-        int cellX = event.getX() / cellWidth;
-        int cellY = event.getY() / cellHeight;
+    private boolean playerSecondTurn(MouseEvent event1) {
+        int cellX = event1.getX() / cellWidth;
+        int cellY = event1.getY() / cellHeight;
         if (!isCellValid(cellY, cellX) || !isCellEmpty(cellY, cellX)) {
             return false;
         }
+
         field[cellY][cellX] = DOT_AI;
         repaint();
         return true;
@@ -157,15 +181,15 @@ public class GameMap extends JPanel {
     }
 
     public void startNewGame(int gameMode, int fieldSize, int winLength) {
+        repaint();
         this.gameMode = gameMode;
         fieldSizeX = fieldSize;
         fieldSizeY = fieldSize;
         this.winLength = winLength;
-        playerNumTurn = 1;
         field = new int[fieldSizeY][fieldSizeX];
         isInitialized = true;
         isGameOver = false;
-        repaint();
+        
     }
 
     private void showGameOverMessage(Graphics g) {
@@ -176,6 +200,8 @@ public class GameMap extends JPanel {
         switch (stateGameOver) {
             case STATE_DRAW -> g.drawString("DRAW", getWidth() / 4, getHeight() / 2);
             case STATE_WIN_HUMAN -> g.drawString("HUMAN WIN!", getWidth() / 4, getHeight() / 2);
+            case STATE_WIN_HUMAN1 -> g.drawString("HUMAN 1 WIN!", getWidth() / 4, getHeight() / 2);
+            case STATE_WIN_HUMAN2 -> g.drawString("HUMAN 2 WIN!", getWidth() / 4, getHeight() / 2);
             case STATE_WIN_AI -> g.drawString("AI WIN", getWidth() / 4, getHeight() / 2);
         }
     }

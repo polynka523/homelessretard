@@ -14,7 +14,6 @@ public class GameFrame extends JFrame {
         setLocationRelativeTo(null);
         setTitle("Tic Tac Toe");
         setResizable(false);
-        setVisible(true);
         JButton btnStart = new JButton("Start");
         JButton btnExit = new JButton("Exit");
         JPanel btnPanel = new JPanel();
@@ -22,13 +21,14 @@ public class GameFrame extends JFrame {
         btnPanel.add(btnStart);
         btnPanel.add(btnExit);
         add(btnPanel,BorderLayout.SOUTH);
-        gameMap = new GameMap();
         Settings settings = new Settings(this);
-        add(gameMap, BorderLayout.CENTER);
         btnStart.addActionListener(e -> settings.setVisible(true));
         btnExit.addActionListener(e -> System.exit(0));
+        setVisible(true);
     }
     public  void  startGame(int gameMode, int fieldSize, int winLength) {
+        gameMap = new GameMap(gameMode);
+        add(gameMap, BorderLayout.CENTER);
         gameMap.startNewGame(gameMode,fieldSize,winLength);
         System.out.println("GM:" + gameMode + "FS:" + fieldSize +"WL:" + winLength);
     }
